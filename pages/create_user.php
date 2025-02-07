@@ -35,18 +35,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!in_array($emailDomain, $allowedEmails)) {
             $error = "Email harus menggunakan domain yang valid!";
         } else {
-            // Simpan foto ke folder uploads
-            $uploadDir = '../uploads/';
-            $photoName = uniqid() . '-' . basename($photo['name']);
-            $uploadFilePath = $uploadDir . $photoName;
-            move_uploaded_file($photo['tmp_name'], $uploadFilePath);
+            $photoName = null;
+            if (!empty($photo['name'])) {
+                $uploadDir = '../uploads/';
+                $photoName = uniqid() . '-' . basename($photo['name']);
+                $uploadFilePath = $uploadDir . $photoName;
+    
+                if (!move_uploaded_file($photo['tmp_name'], $uploadFilePath)) {
+                    $error = "Gagal mengupload gambar!";
+                }
+            }
 
             // Buat password acak dan hash MD5
             $randomPassword = bin2hex(random_bytes(8));  // Membuat password acak 16 karakter
             $hashedPassword = md5($randomPassword);
 
             // Siapkan query untuk memasukkan data user
-            $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password, bio, photo) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password, bio, profile_pic) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$firstName, $lastName, $email, $hashedPassword, $bio, $photoName]);
 
             // Redirect ke dashboard
@@ -64,7 +69,7 @@ function isEmailDuplicateInCreateUser($pdo, $email) {
 }
 // Fungsi untuk cek nama gambar duplikat
 function isPhotoDuplicate($pdo, $photoName) {
-    $stmt = $pdo->prepare("SELECT 1 FROM users WHERE photo = ?");
+    $stmt = $pdo->prepare("SELECT 1 FROM users WHERE profile_pic = ?");
     $stmt->execute([$photoName]);
     return $stmt->fetchColumn() > 0;
 }

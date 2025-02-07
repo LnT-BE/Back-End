@@ -99,11 +99,10 @@ $users = $stmt->fetchAll();
                         <tr>
                             <td><?php echo $index + 1; ?></td>
                             <td>
-                                <?php if (!empty($user['profile_pic'])): ?>
-                                    <img src="<?php echo htmlspecialchars($user['profile_pic']); ?>" alt="Profile Picture" class="profile-pic">
-                                <?php else: ?>
-                                    <img src="https://via.placeholder.com/50" alt="Profile Picture" class="profile-pic">
-                                <?php endif; ?>
+                             <?php 
+                                $profilePic = !empty($user['profile_pic']) ? 'uploads/' . htmlspecialchars($user['profile_pic']) : 'uploads/default.png';
+                                 ?>
+                             <img src="http://localhost/Back-End/uploads/<?php echo htmlspecialchars($user['profile_pic']); ?>" alt="Profile Picture" width="50">
                             </td>
                             <td><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
                             <td><?php echo htmlspecialchars($user['email']); ?></td>
