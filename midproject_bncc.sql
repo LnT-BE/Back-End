@@ -8,8 +8,9 @@ CREATE TABLE `users` (
   `photo` VARCHAR(50) NOT NULL,
   `email` VARCHAR(100) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
-  `bio` TEXT
+  `bio` TEXT,
+  `remember_token` VARCHAR(255) DEFAULT NULL
 );
 
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `bio`) VALUES
-('A001', 'admin', 'BNCC', 'adminBNCC@gmail.com', 'e64b78fc3bc91bcbc7dc232ba8ec59e0', 'Hi my name is Admin, and I like backend development.');
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `photo`, `email`, `password`, `bio`, `remember_token`) VALUES
+('A001', 'admin', 'BNCC', 'default.jpg', 'adminBNCC@gmail.com', 'e64b78fc3bc91bcbc7dc232ba8ec59e0', 'Hi my name is Admin, and I like backend development.', NULL);

@@ -13,7 +13,6 @@ $options = [
 ];
 
 
-
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
