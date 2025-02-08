@@ -7,6 +7,30 @@ if (!isLoggedIn()) {
     exit();
 }
 
+// Fungsi untuk mendapatkan ID terakhir
+function getLastUserId($pdo) {
+    $stmt = $pdo->query("SELECT id FROM users ORDER BY id DESC LIMIT 1");
+    $lastId = $stmt->fetchColumn();
+    return $lastId;
+}
+
+// Fungsi untuk menghasilkan ID baru
+function generateNewId($lastId) {
+    // Jika tidak ada ID sebelumnya, mulai dari A001
+    if ($lastId === false) {
+        return 'A001';
+    }
+    
+    // Ambil angka dari ID terakhir, misalnya A001 -> 001
+    $lastNumber = (int)substr($lastId, 1);
+    
+    // Tambah angka tersebut dan buat ID baru
+    $newNumber = $lastNumber + 1;
+    
+    // Format dengan awalan 'A' dan padding 3 digit
+    return 'A' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Ambil data dari form
     $firstName = $_POST['first_name'];
@@ -35,6 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!in_array($emailDomain, $allowedEmails)) {
             $error = "Email harus menggunakan domain yang valid!";
         } else {
+            // Generate ID baru
+            $lastId = getLastUserId($pdo);  // Ambil ID terakhir
+            $newId = generateNewId($lastId);  // Generate ID baru
+            
             // Simpan foto ke folder uploads
             $uploadDir = '../uploads/';
             $photoName = uniqid() . '-' . basename($photo['name']);
@@ -46,8 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $hashedPassword = md5($randomPassword);
 
             // Siapkan query untuk memasukkan data user
-            $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password, bio, photo) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$firstName, $lastName, $email, $hashedPassword, $bio, $photoName]);
+            $stmt = $pdo->prepare("INSERT INTO users (id, first_name, last_name, email, password, bio, photo) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$newId, $firstName, $lastName, $email, $hashedPassword, $bio, $photoName]);
 
             // Redirect ke dashboard
             header("Location: dashboard.php");
