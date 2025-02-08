@@ -14,3 +14,4 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `first_name`, `last_name`, `photo`, `email`, `password`, `bio`, `remember_token`) VALUES
 ('A001', 'admin', 'BNCC', 'default.jpg', 'adminBNCC@gmail.com', 'e64b78fc3bc91bcbc7dc232ba8ec59e0', 'Hi my name is Admin, and I like backend development.', NULL);
+
