@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Sanitasi input
     $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
     $password = $_POST['password'];
+    $remember = isset($_POST['remember']); // Cek apakah Remember Me dicentang
 
     // Validasi Input
     if (empty($email) || empty($password)) {
@@ -26,10 +27,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->execute([$email]);
             $user = $stmt->fetch();
 
-            // Verifikasi password menggunakan MD5
-            if ($user && md5($password) === $user['password']) {
+            // Verifikasi password dengan hash MD5
+            if ($user && md5($password) === $user['password']) { // Gunakan md5() untuk mencocokkan hash
                 // Login berhasil
                 $_SESSION['user_id'] = $user['id']; // Simpan user ID di session
+
+                if ($remember) {
+                    // Buat token Remember Me
+                    $token = bin2hex(random_bytes(32));
+                    $hashedToken = hash('sha256', $token);
+
+                    // Simpan token di database
+                    $stmt = $pdo->prepare("UPDATE users SET remember_token = ? WHERE id = ?");
+                    $stmt->execute([$hashedToken, $user['id']]);
+
+                    // Simpan token di cookie dengan HTTP-Only & Secure
+                    setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), "/", "", true, true);
+                }
+
                 header("Location: dashboard.php"); // Redirect ke dashboard
                 exit();
             } else {
@@ -67,6 +82,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="form-group">
                         <label for="password">Password</label>
                         <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">Remember Me</label>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block">Login</button>
                 </form>
